@@ -1,0 +1,57 @@
+version: '3.9'
+
+services:
+    rabbitmq1:
+        image: rabbitmq:3.9.7-management-alpine
+        deploy:
+            resources:
+                limits:
+                    memory: 2g
+        ports:
+            # Management port
+            - 15672:15672
+            # default service port
+            - 5672:5672
+            # Prometheus support
+            - 15692:15692
+        volumes: 
+            # To use default user configuration
+            # - ./rabbitmq1/rabbitmq-with-default-user.conf:/etc/rabbitmq/rabbitmq.conf
+
+            # To use definitions import file
+            - ./rabbitmq1/rabbitmq-with-custom-user.conf:/etc/rabbitmq/rabbitmq.conf
+            - ./rabbitmq1/definitions.json:/etc/rabbitmq/definitions.json
+        environment:
+            - RABBITMQ_NODENAME=rabbitmq1
+            - RABBITMQ_CONFIG_FILE=/etc/rabbitmq/rabbitmq.conf
+        networks:
+            - brokernet
+
+    # Configure prometheus
+    prometheus:
+        image: prom/prometheus
+        ports: 
+            - 9090:9090
+        networks: 
+            - brokernet
+        volumes:
+            - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+
+    # Configure grafana
+    grafana:
+        image: grafana/grafana
+        restart: always
+        ports:
+            - 3000:3000
+        environment:
+            - GF_SECURITY_ADMIN_PASSWORD=admin
+            - GF_SECURITY_DISABLE_GRAVATAR=true
+        networks:
+            - brokernet
+        volumes:
+            - ./grafana/provisioning_config/datasource.yml:/etc/grafana/provisioning/datasources/datasource.yml
+            - ./grafana/provisioning_config/dashboard_provision_config.yml:/etc/grafana/provisioning/dashboards/dashboard_provision_config.yml
+            - ./grafana/dashboards:/var/lib/grafana/dashboards
+      
+networks:
+  brokernet:
