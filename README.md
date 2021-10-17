@@ -13,6 +13,12 @@ make start
 make start-cluster
 ```
 
+Once all the containers are up and running, run
+
+```
+./setup-cluster.sh
+```
+
 ## To cleanup
 
 ```
