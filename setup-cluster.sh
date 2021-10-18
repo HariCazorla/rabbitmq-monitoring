@@ -21,7 +21,6 @@ docker exec -ti $rabbitmq_instance_3 bash -c "rabbitmqctl join_cluster rabbit@ra
 docker exec -ti $rabbitmq_instance_3 bash -c "rabbitmqctl start_app"
 
 # check cluster status
-# on rabbit2
 docker exec -ti $rabbitmq_instance_1 bash -c "rabbitmqctl cluster_status"
 
 # check node status
